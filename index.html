@@ -105,8 +105,8 @@
         <!-- Reward Backdrop -->
         <div
             id="backdrop"
-            class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center"
-            style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 20002; display: none !important"
+            class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center d-none"
+            style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 20002"
         >
             <div id="backdrop-inner" class="text-white text-center">
                 <h1 class="mb-2">Congratulations! You won:</h1>
@@ -155,15 +155,18 @@
                     const rewardText = document.getElementById("rewardText");
                     const rewardImg = document.getElementById("rewardImg");
 
-                    backdrop.style.display = "flex";
                     rewardText.textContent = this.items[index].label;
                     rewardImg.src = this.items[index].image;
+
+                    backdrop.classList.remove("d-none"); // show
+                    backdrop.classList.add("d-flex");
                 },
 
                 hideReward() {
-                    document.getElementById("backdrop").style.display = "none";
+                    const backdrop = document.getElementById("backdrop");
+                    backdrop.classList.add("d-none"); // hide
+                    backdrop.classList.remove("d-flex");
                 },
-
                 // ----------------------------
                 // Spin logic
                 // ----------------------------
