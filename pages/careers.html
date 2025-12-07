@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Careers</title>
+
+        <script>
+            fetch("../header.html")
+                .then((r) => r.text())
+                .then((html) => document.head.insertAdjacentHTML("beforeend", html));
+        </script>
+    </head>
+
+    <body>
+        <!-- <script>
+            fetch("../navbar.html")
+                .then((r) => r.text())
+                .then((html) => document.body.insertAdjacentHTML("afterbegin", html));
+        </script> -->
+
+        <div class="thumbnail">
+            <img class="thumbnail-img" src="../images/careers-thumbnail.png" />
+            <h1 class="thumbnail-text text-center">Join one of the region's fastest-rising tech startups.</h1>
+        </div>
+
+        <h2 class="text-primary text-center fw-bold mt-5">Our Mission</h2>
+        <h5 class="text-center mb-1">
+            Our mission is to deliver the things people love in the easiest, most convenient way. More living. Less
+            worrying.
+        </h5>
+        <h5 class="text-center mb-3" dir="rtl">
+            مهمّتنا هي إيصال ما يُحِبّه الناس بأبسط وأسهل طريقة ممكنة. حياة أكثر، وقلق أقل.
+        </h5>
+
+        <div class="mb-5">
+            <h2 class="text-primary text-center fw-bold mt-5">Why Work With Us</h2>
+            <h5 class="text-center mb-1">
+                We're a team that's always pushing limits — thinking smarter, working harder, and stepping up whenever
+                needed. We may be young, but we're powerful.
+            </h5>
+            <h6 class="text-center">Feel the same fire? Join us!</h6>
+        </div>
+
+        <div class="d-flex flex-column align-items-center mb-5">
+            <div class="d-flex align-items-center justify-content-evenly w-75 gap-5">
+                <div>
+                    <h3><strong>Shape Your Journey With Us</strong></h3>
+                    <h5>
+                        Join a dynamic startup that's expanding quickly and full of room to build, create, and grow.
+                    </h5>
+                </div>
+
+                <img class="career-img" src="../images/careers-img-1.png" />
+            </div>
+
+            <div class="d-flex align-items-center justify-content-evenly w-75 gap-5">
+                <img class="career-img" src="../images/careers-img-2.png" />
+
+                <div>
+                    <h3><strong>Work With Outstanding People</strong></h3>
+                    <h5>
+                        Step into the startup grind alongside an all-star crew. We're a group of food fanatics,
+                        problem-solvers, tech nerds, sales champs, and content creators—young, ambitious, and powered by
+                        global insight.
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="backdrop"
+            class="position-fixed w-100 h-100"
+            style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 20002; display: none"
+        >
+            <div id="backdrop-inner" class="text-white text-center">
+                <h1 class="mr-2">Congratulations! You won:</h1>
+                <h2 id="rewardText"></h2>
+                <img id="rewardImg" class="mb-3" style="height: 200px" src="" /><br />
+                <button onclick="hideBackdrop()" class="btn btn-light">Okay</button>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+        <script type="module">
+            import { Wheel } from "https://cdn.jsdelivr.net/npm/spin-wheel@5.0.2/dist/spin-wheel-esm.js";
+
+            // ----------------------------------------------------------
+            // GLOBAL APP OBJECT (only global you have)
+            // ----------------------------------------------------------
+            window.GZ = {
+                wheel: null,
+                hasSpun: false,
+
+                // ----------------------------
+                // Open the spin modal
+                // ----------------------------
+                openWheelModal() {
+                    if (GZ.hasSpun) return;
+                    const modalEl = document.getElementById("spinWheelModal");
+                    if (!modalEl) return console.warn("Modal not loaded yet");
+
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                },
+
+                // ----------------------------
+                // Show the reward overlay
+                // ----------------------------
+                showReward(index) {
+                    const backdrop = document.getElementById("backdrop");
+                    const rewardText = document.getElementById("rewardText");
+                    const rewardImg = document.getElementById("rewardImg");
+
+                    backdrop.style.display = "flex";
+                    rewardText.textContent = this.items[index].label;
+                    rewardImg.src = this.items[index].image;
+                },
+
+                hideReward() {
+                    document.getElementById("backdrop").style.display = "none";
+                },
+
+                // ----------------------------
+                // Spin logic
+                // ----------------------------
+                cubicOut(t) {
+                    const f = t - 1;
+                    return f * f * f + 1;
+                },
+
+                getRandomIndex() {
+                    return Math.floor(Math.random() * this.items.length);
+                },
+
+                launchConfetti() {
+                    confetti({
+                        particleCount: 150,
+                        spread: 90,
+                        origin: { y: 0.6 },
+                        colors: ["#a00498", "#caa0e4", "#d8b4f2", "#b5b4f2"],
+                        zIndex: 30000,
+                    });
+                },
+
+                async spin() {
+                    if (!this.wheel || this.hasSpun) return;
+
+                    const spinBtn = document.getElementById("spin-btn");
+                    spinBtn.disabled = true;
+
+                    const index = this.getRandomIndex();
+                    this.wheel.spinToItem(index, 4000, true, 2, 1, this.cubicOut);
+
+                    setTimeout(() => {
+                        this.showReward(index);
+                        this.launchConfetti();
+                        this.hasSpun = true;
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById("spinWheelModal"));
+                        modal?.hide();
+                    }, 4000);
+                },
+            };
+
+            // ----------------------------------------------------------
+            // WHEEL ITEMS (static data, clean)
+            // ----------------------------------------------------------
+            window.GZ.items = [
+                { label: "20% Restaurant Voucher", image: "images/restaurant-voucher-20.png" },
+                { label: "Pet Care", image: "images/pet-care.jpg" },
+                { label: "Electronics", image: "images/electronics.jpg" },
+                { label: "50% Restaurant Voucher", image: "images/restaurant-voucher-50.png" },
+                { label: "Baby Products", image: "images/baby-products.jpg" },
+                { label: "Free Fitness Sessions", image: "images/fitness-voucher.png" },
+                { label: "30% Restaurant Voucher", image: "images/restaurant-voucher-30.png" },
+                { label: "Make Up", image: "images/make-up.jpg" },
+                { label: "40% Restaurant Voucher", image: "images/restaurant-voucher-40.png" },
+                { label: "Gift Box", image: "images/gift-box.jpg" },
+            ];
+
+            // ----------------------------------------------------------
+            // LOAD NAVBAR — add event listeners after load
+            // ----------------------------------------------------------
+            fetch("../navbar.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.body.insertAdjacentHTML("afterbegin", html);
+
+                    // Add click event to logo button (no inline onclick!)
+                    const logoBtn = document.querySelector(".logo");
+                    if (logoBtn) {
+                        logoBtn.addEventListener("click", () => GZ.openWheelModal());
+                    }
+                });
+
+            // ----------------------------------------------------------
+            // LOAD WHEEL MODAL — initialize wheel when ready
+            // ----------------------------------------------------------
+            fetch("../wheel-modal.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.body.insertAdjacentHTML("beforeend", html);
+
+                    const modal = document.getElementById("spinWheelModal");
+                    const spinBtn = modal.querySelector("#spin-btn");
+
+                    modal.addEventListener("shown.bs.modal", () => {
+                        const container = modal.querySelector(".wheel-container");
+                        container.innerHTML = "";
+
+                        window.GZ.wheel = new Wheel(container, {
+                            items: window.GZ.items,
+                            borderColor: "#000",
+                            borderWidth: 7,
+                            itemBackgroundColors: ["#d8b4f2", "#caa0e4", "#b891d9"],
+                            lineColor: "#00000088",
+                        });
+
+                        window.GZ.wheel.isInteractive = false;
+                    });
+
+                    spinBtn.addEventListener("click", () => GZ.spin());
+                });
+
+            // Reward overlay close button
+            window.hideBackdrop = () => GZ.hideReward();
+        </script>
+    </body>
+
+    <footer id="footer">
+        <script>
+            fetch("../footer.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.querySelector("#footer").insertAdjacentHTML("beforeend", html);
+                });
+        </script>
+    </footer>
+</html>

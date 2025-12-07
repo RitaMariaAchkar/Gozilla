@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gozilla</title>
+
+        <script>
+            fetch("header.html")
+                .then((r) => r.text())
+                .then((html) => document.head.insertAdjacentHTML("beforeend", html));
+        </script>
+    </head>
+
+    <body>
+        <!-- <script>
+            fetch("navbar.html")
+                .then((r) => r.text())
+                .then((html) => document.body.insertAdjacentHTML("afterbegin", html));
+        </script> -->
+
+        <div id="gozilla-banner">
+            <img id="gozilla-banner-img" src="images/gozilla-banner.jpg" />
+            <button id="download-btn" class="btn btn-light">Download Gozilla App</button>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-evenly w-100">
+            <div style="max-width: 60%">
+                <h1><strong>Your cravings live here.</strong></h1>
+                <h2>Coffee, Asian food, groceries, gadgets everything you love, one tap away.</h2>
+            </div>
+
+            <img class="phone-img" src="images/phone-img-1.jpg" />
+        </div>
+
+        <div class="d-flex align-items-center justify-content-evenly w-100">
+            <img class="phone-img" src="images/phone-img-2.jpg" />
+
+            <div style="max-width: 60%">
+                <h1><strong>One click. Done.</strong></h1>
+                <h2>Your order, your way, right on time — pay by card or cash. Delivery made effortless.</h2>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-evenly w-100">
+            <div style="max-width: 60%">
+                <h1><strong>Real-time tracking.</strong></h1>
+                <h2>From order to doorstep watch it every step of the way.</h2>
+            </div>
+
+            <img class="phone-img" src="images/phone-img-3.jpg" />
+        </div>
+
+        <div class="d-flex justify-content-center gap-md-5 mb-5">
+            <a href="pages/become-a-partner.html" class="partner-wrapper">
+                <div class="partner-with-us-text">
+                    <h2>Stores & Restaurants</h2>
+                    <h5>
+                        Connect with new customers, grow your business, and deliver to the people who love your brand.
+                    </h5>
+                </div>
+                <img class="partner-with-us-img" src="images/burgers-img.jpg" />
+            </a>
+
+            <a href="pages/deliver-for-gozilla.html" class="partner-wrapper">
+                <div class="partner-with-us-text">
+                    <h2>Deliver for Gozilla</h2>
+                    <h5>Work flexible hours, earn more money, and deliver for the city's trendiest restaurants.</h5>
+                </div>
+                <img class="partner-with-us-img" src="images/delivery-motorcycle.png" />
+            </a>
+        </div>
+
+        <div id="download-section" class="d-flex flex-column align-items-center mb-5">
+            <h2>Get the Gozilla app today!</h2>
+            <div class="d-flex gap-3">
+                <a href="https://apps.apple.com/us/app/gozilla-delivery-app/id1597480705" target="_blank">
+                    <img class="download-img" src="images/app-store-img.webp" />
+                </a>
+
+                <a href="https://play.google.com/store/apps/details?id=com.linkit.gozilla&hl=en" target="_blank">
+                    <img class="download-img" src="images/google-play-store-img.webp" />
+                </a>
+            </div>
+        </div>
+
+        <div
+            id="backdrop"
+            class="position-fixed w-100 h-100"
+            style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8); z-index: 20002; display: none"
+        >
+            <div id="backdrop-inner" class="text-white text-center">
+                <h1 class="mr-2">Congratulations! You won:</h1>
+                <h2 id="rewardText"></h2>
+                <img id="rewardImg" class="mb-3" style="height: 200px" src="" /><br />
+                <button onclick="hideBackdrop()" class="btn btn-light">Okay</button>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+        <script>
+            document.getElementById("download-btn").addEventListener("click", () => {
+                document.getElementById("download-section").scrollIntoView({ behavior: "smooth" });
+            });
+        </script>
+
+        <script type="module">
+            import { Wheel } from "https://cdn.jsdelivr.net/npm/spin-wheel@5.0.2/dist/spin-wheel-esm.js";
+
+            // ----------------------------------------------------------
+            // GLOBAL APP OBJECT (only global you have)
+            // ----------------------------------------------------------
+            window.GZ = {
+                wheel: null,
+                hasSpun: false,
+
+                // ----------------------------
+                // Open the spin modal
+                // ----------------------------
+                openWheelModal() {
+                    if (GZ.hasSpun) return;
+                    const modalEl = document.getElementById("spinWheelModal");
+                    if (!modalEl) return console.warn("Modal not loaded yet");
+
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                },
+
+                // ----------------------------
+                // Show the reward overlay
+                // ----------------------------
+                showReward(index) {
+                    const backdrop = document.getElementById("backdrop");
+                    const rewardText = document.getElementById("rewardText");
+                    const rewardImg = document.getElementById("rewardImg");
+
+                    backdrop.style.display = "flex";
+                    rewardText.textContent = this.items[index].label;
+                    rewardImg.src = this.items[index].image;
+                },
+
+                hideReward() {
+                    document.getElementById("backdrop").style.display = "none";
+                },
+
+                // ----------------------------
+                // Spin logic
+                // ----------------------------
+                cubicOut(t) {
+                    const f = t - 1;
+                    return f * f * f + 1;
+                },
+
+                getRandomIndex() {
+                    return Math.floor(Math.random() * this.items.length);
+                },
+
+                launchConfetti() {
+                    confetti({
+                        particleCount: 150,
+                        spread: 90,
+                        origin: { y: 0.6 },
+                        colors: ["#a00498", "#caa0e4", "#d8b4f2", "#b5b4f2"],
+                        zIndex: 30000,
+                    });
+                },
+
+                async spin() {
+                    if (!this.wheel || this.hasSpun) return;
+
+                    const spinBtn = document.getElementById("spin-btn");
+                    spinBtn.disabled = true;
+
+                    const index = this.getRandomIndex();
+                    this.wheel.spinToItem(index, 4000, true, 2, 1, this.cubicOut);
+
+                    setTimeout(() => {
+                        this.showReward(index);
+                        this.launchConfetti();
+                        this.hasSpun = true;
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById("spinWheelModal"));
+                        modal?.hide();
+                    }, 4000);
+                },
+            };
+
+            // ----------------------------------------------------------
+            // WHEEL ITEMS (static data, clean)
+            // ----------------------------------------------------------
+            window.GZ.items = [
+                { label: "20% Restaurant Voucher", image: "images/restaurant-voucher-20.png" },
+                { label: "Pet Care", image: "images/pet-care.jpg" },
+                { label: "Electronics", image: "images/electronics.jpg" },
+                { label: "50% Restaurant Voucher", image: "images/restaurant-voucher-50.png" },
+                { label: "Baby Products", image: "images/baby-products.jpg" },
+                { label: "Free Fitness Sessions", image: "images/fitness-voucher.png" },
+                { label: "30% Restaurant Voucher", image: "images/restaurant-voucher-30.png" },
+                { label: "Make Up", image: "images/make-up.jpg" },
+                { label: "40% Restaurant Voucher", image: "images/restaurant-voucher-40.png" },
+                { label: "Gift Box", image: "images/gift-box.jpg" },
+            ];
+
+            // ----------------------------------------------------------
+            // LOAD NAVBAR — add event listeners after load
+            // ----------------------------------------------------------
+            fetch("./navbar.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.body.insertAdjacentHTML("afterbegin", html);
+
+                    // Add click event to logo button (no inline onclick!)
+                    const logoBtn = document.querySelector(".logo");
+                    if (logoBtn) {
+                        logoBtn.addEventListener("click", () => GZ.openWheelModal());
+                    }
+                });
+
+            // ----------------------------------------------------------
+            // LOAD WHEEL MODAL — initialize wheel when ready
+            // ----------------------------------------------------------
+            fetch("./wheel-modal.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.body.insertAdjacentHTML("beforeend", html);
+
+                    const modal = document.getElementById("spinWheelModal");
+                    const spinBtn = modal.querySelector("#spin-btn");
+
+                    modal.addEventListener("shown.bs.modal", () => {
+                        const container = modal.querySelector(".wheel-container");
+                        container.innerHTML = "";
+
+                        window.GZ.wheel = new Wheel(container, {
+                            items: window.GZ.items,
+                            borderColor: "#000",
+                            borderWidth: 7,
+                            itemBackgroundColors: ["#d8b4f2", "#caa0e4", "#b891d9"],
+                            lineColor: "#00000088",
+                        });
+
+                        window.GZ.wheel.isInteractive = false;
+                    });
+
+                    spinBtn.addEventListener("click", () => GZ.spin());
+                });
+            // Reward overlay close button
+            window.hideBackdrop = () => GZ.hideReward();
+        </script>
+    </body>
+
+    <footer id="footer">
+        <script>
+            fetch("footer.html")
+                .then((r) => r.text())
+                .then((html) => {
+                    document.querySelector("#footer").insertAdjacentHTML("beforeend", html);
+                });
+        </script>
+    </footer>
+</html>
